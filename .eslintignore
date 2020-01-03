@@ -1,0 +1,8 @@
+config/
+coverage/
+cypress/
+dist/
+node_modules/
+public/
+scripts/
+test/

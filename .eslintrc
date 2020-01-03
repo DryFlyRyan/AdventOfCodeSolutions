@@ -1,0 +1,24 @@
+{
+  "extends": "airbnb",
+  "rules": {
+    "arrow-parens": 1,
+    "arrow-body-style" : 0,
+    "camelcase": 0,
+    "comma-dangle": 1,
+    "consistent-return": 0,
+    "function-paren-newline": ["warn", "consistent"],
+    "indent": 1,
+    "max-len": [1, { "ignoreComments": true, "code": 120 }],
+    "no-console": 0,
+    "no-plusplus": 0,
+    "no-trailing-spaces": 1,
+    "no-underscore-dangle": 0,
+    "no-throw-literal": 0,
+    "no-confusing-arrow": 0,
+    "no-unused-vars": 1,
+    "semi": 1
+  },
+  "env": {
+    "es2020": true
+  }
+}
