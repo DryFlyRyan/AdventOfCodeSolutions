@@ -22,7 +22,7 @@ class Intcode {
     programInput = [],
     waitOnOutput = false,
     timeout = 10000,
-    reportTime = true,
+    reportTime = false,
     pauseOnOp = false,
   } = {}) {
     this.program = [...program];
@@ -251,25 +251,33 @@ class Intcode {
     };
   }
 
+  logTime() {
+    if (!this.reportTime) {
+      return;
+    }
+
+    const currentTime = new Date();
+    if (
+      currentTime - this.startTime >= 1000
+      && (!this.lastReportedTime
+          || currentTime - this.lastReportedTime >= 1000)
+    ) {
+      this.lastReportedTime = currentTime;
+
+      if (this.reportTime) {
+        console.log(`The process has been running for ${(currentTime - this.startTime) / 1000}s`);
+        console.log('Current Position: ', this.currentPosition);
+        console.log('OpValue: ', this.program[this.currentPosition]);
+      }
+
+      if (currentTime - this.startTime >= this.timeout) {
+        throw new Error('Aborting due to timeout')
+      }
+    }
+  }
+
   async run() {
     while (!this.waiting) {
-      const currentTime = new Date();
-      if (
-        currentTime - this.startTime >= 1000
-        && (!this.lastReportedTime || currentTime - this.lastReportedTime >= 1000)
-      ) {
-        this.lastReportedTime = currentTime;
-
-        if (this.reportTime) {
-          console.log(`The process has been running for ${(currentTime - this.startTime) / 1000}s`);
-          console.log('Current Position: ', this.currentPosition);
-          console.log('OpValue: ', this.program[this.currentPosition]);
-        }
-
-        if (currentTime - this.startTime >= this.timeout) {
-          throw new Error('Aborting due to timeout')
-        }
-      }
 
       const { opCode, values } = await this.processOpCode(this.program[this.currentPosition]);
       if (opCode === END) {
@@ -281,8 +289,6 @@ class Intcode {
       await this.opCodes[opCode].fn(...values);
       
       if (opCode === OUT) {
-        console.log('pos', this.currentPosition - 2);
-        console.log({ output: this.output });
         if (this.waitOnOutput) {
           this.waiting = true;
           break;
@@ -306,7 +312,7 @@ class Intcode {
     }
   }
 
-  async resume({ programInput }) {
+  async resume({ programInput = [] } = {}) {
     try {
       this.programInput = [...this.programInput, ...programInput];
       this.waiting = false;
@@ -315,6 +321,7 @@ class Intcode {
       return {
         output: this.output,
         done: this.done,
+        program: this.program,
       };
     } catch (error) {
       console.error(error);
